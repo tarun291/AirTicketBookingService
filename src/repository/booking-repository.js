@@ -40,6 +40,20 @@ class BookingRepository {
             );
         }
     }
+    async getBooking(bookingId){
+        try {
+            const booking= await Booking.findByPk(bookingId);
+            return booking;
+        } catch (error) {
+            console.log(error);
+            throw new AppError(
+                'RepositoryError',
+                'Cannot fetched Booking',
+                'There was some issue in fetching the booking, please try again later',
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
 }
 
 module.exports = BookingRepository;

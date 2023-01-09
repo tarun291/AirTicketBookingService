@@ -36,6 +36,17 @@ class BookingService {
             throw new ServiceError();
         }
     }
+    async getBooking(bookingId){
+        try {
+            const booking=await this.bookingRepository.getBooking(bookingId);
+            return booking;
+        } catch (error) {
+            if(error.name=='RepositoryError' || error.name=='ValidationError'){
+                throw error;
+            }
+            throw new ServiceError();
+        }
+    }
 }
 
 module.exports = BookingService;

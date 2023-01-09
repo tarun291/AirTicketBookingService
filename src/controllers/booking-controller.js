@@ -22,8 +22,27 @@ const create = async (req, res) => {
         })
     }
 }
+const getBooking=async (req,res)=>{
+    try {
+        const responce=await bookingService.getBooking(req.params.id);
+        return res.status(StatusCodes.OK).json({
+            message: 'Sucessfully fetched booking',
+            success: true,
+            err: {},
+            data: responce
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+            success: false,
+            err: error.explanation,
+            data: {}
+        })
+    }
+}
 
 
 module.exports = {
-    create
+    create,
+    getBooking
 }
