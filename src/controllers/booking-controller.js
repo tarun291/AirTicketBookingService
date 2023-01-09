@@ -41,8 +41,28 @@ const getBooking=async (req,res)=>{
     }
 }
 
+const cancelFlight=async (req,res)=>{
+    try {
+        console.log(req.params.id);
+        const responce=await bookingService.cancelFlight(req.params.id);
+        return res.status(StatusCodes.OK).json({
+            message: 'Sucessfully canceled booking',
+            success: true,
+            err: {},
+            data: responce
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: error.message,
+            success: false,
+            err: error.explanation,
+            data: {}
+        })   
+    }
+}
 
 module.exports = {
     create,
-    getBooking
+    getBooking,
+    cancelFlight
 }

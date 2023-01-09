@@ -47,6 +47,24 @@ class BookingService {
             throw new ServiceError();
         }
     }
+    async cancelFlight(bookingId){
+        try {
+            const booking= await this.bookingRepository.getBooking(bookingId);
+            const bookingData=booking.dataValues;    
+            let getFlightRequestURL=`${FLIGHT_SERVICE_PATH}/api/v1/flights/${bookingData.fligthId}`;
+            const flight=await axios.get(getFlightRequestURL);
+            const flightData=flight.data.data;
+            const updateFlightRequestURL=`${FLIGHT_SERVICE_PATH}/api/v1/flights/${bookingData.fligthId}`;
+            await axios.patch(updateFlightRequestURL,{totalSeats:flightData.totalSeats+bookingData.noOfSeats});
+            const cancel=await this.bookingRepository.delete(bookingId);
+            return cancel;
+        } catch (error) {
+            if(error.name=='RepositoryError' || error.name=='ValidationError'){
+                throw error;
+            }
+            throw new ServiceError();   
+        }
+    }
 }
 
 module.exports = BookingService;
