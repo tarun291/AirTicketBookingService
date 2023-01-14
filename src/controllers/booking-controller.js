@@ -1,68 +1,78 @@
-const { StatusCodes } = require('http-status-codes')
+const { StatusCodes } = require('http-status-codes');
 
 const { BookingService } = require('../services/index')
+const { REMINDER_BINDING_KEY } = require('../config/serverConfig');
+const { createChannel,publishMessage } = require('../utils/messageQueue');
 
 const bookingService = new BookingService();
 
-const create = async (req, res) => {
-    try {
-        const responce = await bookingService.createBooking(req.body);
-        return res.status(StatusCodes.OK).json({
-            message: 'Sucessfully completed booking',
-            success: true,
-            err: {},
-            data: responce
-        })
-    } catch (error){
-        res.status(500).json({
-            message: error.message,
-            success: false,
-            err: error.explanation,
-            data: {}
-        })
-    }
-}
-const getBooking=async (req,res)=>{
-    try {
-        const responce=await bookingService.getBooking(req.params.id);
-        return res.status(StatusCodes.OK).json({
-            message: 'Sucessfully fetched booking',
-            success: true,
-            err: {},
-            data: responce
-        })
-    } catch (error) {
-        res.status(500).json({
-            message: error.message,
-            success: false,
-            err: error.explanation,
-            data: {}
-        })
-    }
-}
+class BookingController {
+    constructor() {
 
-const cancelFlight=async (req,res)=>{
-    try {
-        console.log(req.params.id);
-        const responce=await bookingService.cancelFlight(req.params.id);
-        return res.status(StatusCodes.OK).json({
-            message: 'Sucessfully canceled booking',
-            success: true,
-            err: {},
-            data: responce
+    }
+    async sendMessageToQueue(req,res){
+        const channel=await createChannel();
+        const data={message:'Success'};
+        publishMessage(channel,REMINDER_BINDING_KEY,JSON.stringify(data));
+        return res.status(200).json({
+            message:'Successfully published the event'
         })
-    } catch (error) {
-        res.status(500).json({
-            message: error.message,
-            success: false,
-            err: error.explanation,
-            data: {}
-        })   
+    }
+    async create(req, res) {
+        try {
+            const responce = await bookingService.createBooking(req.body);
+            return res.status(StatusCodes.OK).json({
+                message: 'Sucessfully completed booking',
+                success: true,
+                err: {},
+                data: responce
+            })
+        } catch (error) {
+            res.status(500).json({
+                message: error.message,
+                success: false,
+                err: error.explanation,
+                data: {}
+            })
+        }
+    }
+    async getBooking(req, res) {
+        try {
+            const responce = await bookingService.getBooking(req.params.id);
+            return res.status(StatusCodes.OK).json({
+                message: 'Sucessfully fetched booking',
+                success: true,
+                err: {},
+                data: responce
+            })
+        } catch (error) {
+            res.status(500).json({
+                message: error.message,
+                success: false,
+                err: error.explanation,
+                data: {}
+            })
+        }
+    }
+
+    async cancelFlight(req, res) {
+        try {
+            console.log(req.params.id);
+            const responce = await bookingService.cancelFlight(req.params.id);
+            return res.status(StatusCodes.OK).json({
+                message: 'Sucessfully canceled booking',
+                success: true,
+                err: {},
+                data: responce
+            })
+        } catch (error) {
+            res.status(500).json({
+                message: error.message,
+                success: false,
+                err: error.explanation,
+                data: {}
+            })
+        }
     }
 }
-
-module.exports = {
-    create,
-    getBooking,
-    cancelFlight
-}
+module.exports = BookingController;
